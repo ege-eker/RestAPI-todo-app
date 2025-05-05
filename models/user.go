@@ -29,3 +29,7 @@ func UserMatchPassword(username string, password string) *User {
 	}
 	return nil
 }
+
+func MockUsers() []User {
+	return mockUsers
+}
