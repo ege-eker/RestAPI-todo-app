@@ -2,43 +2,58 @@ package controllers
 
 import (
 	"RestAPI-todo-app/models"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"log"
 	"net/http"
+	"time"
 )
 
 func LoginPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", gin.H{})
 }
 
-type formData struct {
-	Username string `form:"username"`
-	Password string `form:"password"`
-}
-
 func Login(c *gin.Context) {
-	var data formData
-	if err := c.ShouldBind(&data); err != nil {
-		c.HTML(http.StatusBadRequest, "login.html", gin.H{"error": "Invalid input"})
+	var data struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 		return
 	}
 
 	user := models.UserMatchPassword(data.Username, data.Password)
 	if user == nil {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "Invalid username or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
-	session := sessions.Default(c)
-	session.Set("username", user.Username)
-	session.Save()
-	log.Println("session successfully saved")
-	c.Redirect(http.StatusFound, "/")
+
+	// JWT token generation
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": user.Username,
+		"admin":    user.Admin,
+		"ttl":      time.Now().Add(time.Hour * 24 * 7).Unix(),
+	})
+
+	// Hard-Coded secret for demonstration purposes
+	sampleSecret := []byte("secret")
+
+	tokenString, err := token.SignedString(sampleSecret)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	// Sending the token as a cookie
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Auth", tokenString, 3600*24*7, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
 func Logout(c *gin.Context) {
-	session := sessions.Default(c)
-	session.Clear()
-	session.Save()
-	log.Println("session successfully cleared")
+	c.SetCookie("Auth", "", -1, "/", "", false, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+	log.Println("jwt cookie successfully cleared")
 }

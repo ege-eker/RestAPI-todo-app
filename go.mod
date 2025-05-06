@@ -7,6 +7,7 @@ toolchain go1.23.8
 require (
 	github.com/gin-contrib/sessions v1.0.3
 	github.com/gin-gonic/gin v1.10.0
+	github.com/golang-jwt/jwt/v5 v5.2.2
 )
 
 require (
