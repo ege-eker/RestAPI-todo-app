@@ -1,17 +1,12 @@
-package controllers
+package handler
 
 import (
 	"RestAPI-todo-app/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"log"
 	"net/http"
 	"time"
 )
-
-func LoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", gin.H{})
-}
 
 func Login(c *gin.Context) {
 	var data struct {
@@ -50,10 +45,4 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Auth", tokenString, 3600*24*7, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
-}
-
-func Logout(c *gin.Context) {
-	c.SetCookie("Auth", "", -1, "/", "", false, true)
-	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
-	log.Println("jwt cookie successfully cleared")
 }
