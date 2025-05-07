@@ -18,7 +18,7 @@ type TodoList struct {
 	Steps      []TodoStep `json:"steps"`
 }
 
-// TO-DO Step entity - steps of a todo list
+// TO-DO Step entity - steps of a to-do list
 type TodoStep struct {
 	ID          int        `json:"id"`
 	TodoListID  int        `json:"todo_list_id"` // Hangi listeye ait
@@ -63,7 +63,7 @@ func (t *TodoList) CalculateCompletion() {
 	t.Completion = float64(completedCount) / float64(len(t.Steps)) * 100
 }
 
-// Mock todo lists for testing purposes
+// Mock to-do lists for testing purposes
 var MockTodoLists = []TodoList{
 	{
 		ID:         1,
