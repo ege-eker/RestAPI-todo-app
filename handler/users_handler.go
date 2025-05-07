@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Login handles user login and JWT token generation
 func Login(c *gin.Context) {
 	var data struct {
 		Username string `json:"username" binding:"required"`
@@ -19,6 +20,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// Check if the user exists and the password matches
 	user := models.UserMatchPassword(data.Username, data.Password)
 	if user == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
@@ -41,8 +43,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Sending the token as a cookie
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Auth", tokenString, 3600*24*7, "/", "", false, true)
+	// Return only the token string without setting a cookie
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
