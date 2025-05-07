@@ -1,11 +1,13 @@
 package models
 
+// User entity
 type User struct {
 	Username string
 	Password string
 	Admin    bool // true if the user is an admin
 }
 
+// Mock user data
 var mockUsers = []User{
 	{
 		Username: "admin",
@@ -19,6 +21,7 @@ var mockUsers = []User{
 	},
 }
 
+// UserMatchPassword checks if the provided username and password match any user in the mock data
 func UserMatchPassword(username string, password string) *User {
 	for _, user := range mockUsers {
 		if user.Username == username {
@@ -28,8 +31,4 @@ func UserMatchPassword(username string, password string) *User {
 		}
 	}
 	return nil
-}
-
-func MockUsers() []User {
-	return mockUsers
 }
